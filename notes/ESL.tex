@@ -1,0 +1,52 @@
+\documentclass[a4paper]{report}
+\usepackage[margin=0.5in]{geometry}
+
+\title{Elements of Statistical Learning}
+\author{book by Hastings, Tibshirani, and Friedmann}
+\date{}
+
+\begin{document}
+\maketitle
+\setcounter{chapter}{1}
+\chapter{Overview of Supervised Learning}
+\section{Notation}
+\begin{itemize}
+  \item Input variable typically denoted by $X$. 
+  \item if $X$ is vector, its components accessed by subscript $X_j$
+  \item upper case refers to generic/abstract variable. Observed values are written with lowercase: i.e. ith observed value is $x_i$ (which again can be scalar or vector)
+  \item Matrices represented by bold upper case $\bf X$
+    \subitem example: a set of N input p-vectors $x_i$ where $i=1..N$, is represented as the $N\times p$ matrix $X$
+  \item In general vectors are not bolded, except when they have $N$ components. This distinguishes a p-vector of inputs $x_i$ for the ith observation from the $N$-vector $\bf x_j$ consisting of all observations of variable $X_j$.
+  \item All vectors are assumed to be column vectors. Hence the ith row of $\bf X$ is $x_i^T$.
+\end{itemize}
+
+\section{Two Simple Approaches to Prediction: Least Squares and Nearest Neighbors}
+\subsection{Linear Model}
+\begin{itemize}
+  \item Given a vector of inputs $X^T = (X_1, \cdots, X_p)$, we predict the output $Y$ via
+    $$ \hat{Y}  = \beta_0 + \sum_{j=1}^p X_j \hat{\beta}_j $$
+  \item often convenient to include the {\bf bias} (aka intercept) term $\beta_0$  into $X$ by including a constant variable $1$ in $X$. Then letting $\hat{\beta}$ be the vector of coefficients including the bias, we can write the linear model in vector form as the inner product
+    $$ \hat{Y} = X^T\hat{\beta} $$
+  \item in general, $\hat{Y}$ could be a k-vector (i.e. the output is not scalar valued), in which case $\hat{\beta}$ would be a $p\times K$ matrix of coefficients.
+  \item most popular approach to fit the linear model is the method of {\bf least squares}: Pick the coefficients $\hat{\beta}$ to minimize the residual sum of squares:
+    $$ RSS(\beta) := \sum_{i=1}^n (y_i - x_i^T\beta)^2$$
+    in matrix notation
+    $$ RSS(\beta) = ({\bf y} - {\bf X}\beta)^T({\bf y} - {\bf X}\beta) $$
+    \subitem for nonsingular $X^TX$ solution is
+    $$ \hat{\beta} = \left(X^TX\right)^{-1} X^TY $$
+\end{itemize}
+
+\section{Nearest-Neighbor Methods}
+\begin{itemize}
+  \item The k-nearest neighbor fit for $\hat{Y}$ is defined as follows:
+    $$ \hat{Y} = \frac{1}{k} \sum_{x_i \in N_k(x)} y_i $$
+    where $N_k(x)$ is the neighborhood of $x$ defined by the k closest points $x_i$ in the training sample.
+    \subitem requires metric to define closest - typically euclidean
+    \subitem No training required! That is no parameters are fit.
+  \item while k-NN appears to have a single parameter $k$, in truth it has $N/k$ effective parameters, where $N$ is data size.
+    \subitem this is generally much larger than linear model parameters and thus requires much more data.
+    \subitem heuristic: if you have nonoverlapping clusters ok $k$ points, then you have $N/k$ such nhoods, and thus need $N/K$ parms (the means) to describe result/fit.
+  \item cannot use RSS on training to pick $k$, because it would always pick $k=1$, which leads to zero training error.
+\end{itemize}
+
+\end{document}

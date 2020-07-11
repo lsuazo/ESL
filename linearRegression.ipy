@@ -1,0 +1,9 @@
+# coding: utf-8
+import scipy
+import statsmodels.api as sm
+n = 100; X1 = scipy.random.normal(1, 2, n); X2 = scipy.random.normal(-2, 4, n)
+X = np.vstack([X1, X2])
+noise = scipy.random.normal(0, 3, n)
+Y = 3*X1 - 10*X2 + noise
+X = sm.add_constant(X)
+model = sm.OLS(Y, X)
