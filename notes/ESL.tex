@@ -1,5 +1,8 @@
 \documentclass[a4paper]{report}
 \usepackage[margin=0.5in]{geometry}
+\usepackage{amssymb}
+
+\def\reals{\mathbb{R}}
 
 \title{Elements of Statistical Learning}
 \author{book by Hastings, Tibshirani, and Friedmann}
@@ -47,6 +50,15 @@
     \subitem this is generally much larger than linear model parameters and thus requires much more data.
     \subitem heuristic: if you have nonoverlapping clusters ok $k$ points, then you have $N/k$ such nhoods, and thus need $N/K$ parms (the means) to describe result/fit.
   \item cannot use RSS on training to pick $k$, because it would always pick $k=1$, which leads to zero training error.
+\end{itemize}
+
+\section{Statistical Decision Theory}
+\begin{itemize}
+  \item let $X \in \reals^p$ be real valued random input vector, $Y \in \reals$ be real valued randome ouput, with joint distribution $Pr(X,Y)$
+  \item we seek function $f(X):\reals^p \to \reals$ for prediting $Y$ value
+  \item for this we need a {\bf loss function} $L(Y, f(X))$ for penalizing errors in prediction
+  \item most common loss function is: {\bf squared error loss} 
+    $$ L(Y, f(X)) = (Y - f(X))^2 $$
 \end{itemize}
 
 \end{document}
