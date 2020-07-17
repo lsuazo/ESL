@@ -1,6 +1,7 @@
 \documentclass[a4paper]{report}
 \usepackage[margin=0.5in]{geometry}
 \usepackage{amssymb}
+\usepackage{xcolor}
 
 \def\reals{\mathbb{R}}
 
@@ -59,6 +60,25 @@
   \item for this we need a {\bf loss function} $L(Y, f(X))$ for penalizing errors in prediction
   \item most common loss function is: {\bf squared error loss} 
     $$ L(Y, f(X)) = (Y - f(X))^2 $$
+  \item criterion for choosing f: minimize the expected prediction error (EPE)
+    $$ EPE(f) = E(Y-f(X))^2 = \int [y - f(x)]^2 Pr(dx,dy) $$
+  \item He presents some short argument that via conditioning on X and pointwise minimization, you can arrive at the solution
+    $$ f(x) = E(Y | X = x), $$
+    that is, the \emph{conditional expecation}, aka the {\bf regression function}.
+  \item {\color{gray} I am interested in how to rigorously solve this - perhaps a constrained variational calculus problem?}
+  \item KNN is an approximation to this, where instead of relying only on observations at $x$ exactly, a neighborhood of $x$ is use to obtain the expected value of $y$.
+  \item for linear regression - we propose ansatz $f(x) \sim x^T \beta$ -  so don't search over all functions
+    \subitem this is a model based approach
+    \subitem theoretical solutions is:
+    $$ \beta = \left[ E(XX^T)\right]^{-1} E(XY) $$
+  \item Using L1 instead of L2 as loss function leads to $ \hat{f}(x) = median(Y| X = x)$
+  \item For categorical output, loss function is matrix $K\times K$ matrix $L$, where $K$ is number of categories. Zero in the diagonals, and nonnegative elsewhere
+    \subitem typical is {\bf zero-one loss function} - where all off diagonals are $1$.
+  \item The $EPE = E[L(G, \hat{G}(x)]$ where expectation is taken over $Pr(G, x)$
+    \item using same conditioning argumetn and pointwise minimization, and zero one loss, leads to solution known as the {\bf Bayes classifier}
+      $$ \hat{G} = g_k \quad \mbox{ if } \quad Pr(g_k | X = x) = max_{g \in G} Pr(g | X = x) $$
+      that is, classify as the most probable class, using discrete conditional distribution $Pr(G|X)$.
+      \subitem Error rate of the bayes classifier is often called the {\bf Bayes rate}.
 \end{itemize}
 
 \end{document}

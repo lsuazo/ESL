@@ -1,0 +1,1 @@
+1.) Show minimization of squared error loss leads to regression function being the conditional expectation - using variational calculus?
