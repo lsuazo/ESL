@@ -3,6 +3,14 @@
 \usepackage{amssymb}
 \usepackage{xcolor}
 
+
+\newcommand{\brown}{\color{brown}}
+\newcommand{\red}{\color{red}}
+\newcommand{\blue}{\color{blue}}
+\newcommand{\gray}{\color{gray}}
+\newcommand{\<}{\textless}
+\renewcommand{\>}{\textgreater}
+
 \def\reals{\mathbb{R}}
 
 \title{Elements of Statistical Learning}
@@ -94,14 +102,63 @@
     \begin{eqnarray}
       MSE(x_0) &=& E_\tau[(y_0 - \hat{y}_0)^2]\\
       	&=& E_\tau[(y_0 - E_\tau[\hat{y}_0] + E_\tau[\hat{y}_0] - \hat{y}_0)^2 ] \\
-	&=& E_\tau[(y_0 - E_\tau[\hat{y}_0])^2] + 2E_\tau[(y_0 - E_\tau[\hat{y}_0])(E_\tau[\hat{y}_0] - \hat{y}_0)] +   {\color{blue} E_\tau[(\hat{y}_0 - E_\tau[\hat{y}_0])^2] }\\
-	&=&  E_\tau[y_0^2] - 2E_\tau[y_0E\tau[\hat{y}_0]] + E_\tau[E_\tau[\hat{y}_0]^2] + 2E\tau[y_0E_\tau[\hat{y}_0]] - 2E_\tau[y_0\hat{y}_0] - 2E_\tau[E_\tau[\hat{y}_0]^2] + 2E_\tau[E_\tau[\hat{y}_0]\hat{y}_0] \nonumber
-\\ 	&& + {\color{blue} Var_\tau(\hat{y}_0)} \\
-&=& {\color{orange} y_0^2 -2y_0E_\tau[\hat{y}_0] + E_\tau[\hat{y}_0]^2} + {\color{red} 2y_0E_\tau[\hat{y}_0] - 2y_0E_\tau[\hat{y}_0] - 2E_\tau[\hat{y}_0]^2 + 2E_\tau[\hat{y}_0]^2} + {\color{blue} Var_\tau(\hat{y}_0)} \\
-	&=& {\color{orange} (y_0 - E_\tau[\hat{y}_0])^2} + {\color{blue} Var_\tau(\hat{y}_0)} \\ 
-	&=& {\color{orange} Bias_\tau(\hat{y}_0)^2} + {\color{blue} Var_\tau(\hat{y}_0)}
-    \end{eqnarray}
-    \subitem I think must consider one sample $S \in \tau$, to get $\hat{y}_0$, and then consider all samples $\tau$ to talk about $E_\tau[\hat{y}_0]$.
+	&=& {\color{orange} E_\tau[(y_0 - E_\tau[\hat{y}_0])^2]} + 2E_\tau[(y_0 - E_\tau[\hat{y}_0])(E_\tau[\hat{y}_0] - \hat{y}_0)] +   {\color{blue} E_\tau[(\hat{y}_0 - E_\tau[\hat{y}_0])^2] }
+      \end{eqnarray}
+      The term in blue is the variance of the prediction.
+      The term in orange: $E_\tau[(y_0 - E_\tau[\hat{y}_0])^2] = (y_0 - E_\tau[\hat{y}_0])^2$ which is just the Bias of prediction squared.
+      The middle term (in black) is zero (can factor out first piece, and distribute expetation over subtraction). So
+      \begin{equation}
+      MSE(x_0) =  {\color{orange} Bias_\tau(\hat{y}_0)^2} + {\color{blue} Var_\tau(\hat{y}_0)}
+    	\end{equation}
+	This relationship ends up being very generic. More on this at the end of the chapter.
 \end{itemize}
+
+
+\section{Statistical Models, Supervised Learning and Functional Approximation}
+\begin{itemize}
+  \item Summarize overarching framework
+  \item have varaibles $(X,Y)$ which we observer repeatedly
+    \subitem there is some joint probability distribution for their observations $Pr(X,Y)$
+    \subitem {\gray Platonically speaking}
+  \item our goal is \emph{prediction}: want to find a function $f$ such that $f(X)$ is a ``reasonable'' prediction for $Y$
+  \item to define reasonable, need a loss function.
+  \item Sum of squared errors loss leads to optimal $f$ being $f(x) = E(Y | X=x)$ - called the {\bf regression function}.
+    \subitem to get said expectation we need the conditional probability function, which we never have
+    \subitem so we typically approximate the regression funcion, with something like Nearest Neighbors algorithm, or some linear model
+  \item More generally, we seek to approximate conditional probability $Pr(Y | X)$
+  \item one common model: {\bf additive error model}
+    \subitem assumes:
+    $$ Y = f(X) + \epsilon$$
+    where $f$ is the regression function, $\epsilon$ is a random error independent of $X$ with some distribution such $E(\epsilon) = 0$
+    \subitem {\red in what sense is error dependent or independent of $Y$?} - clearly for a given $x$, error has perfect correlation to $Y$ - excess $y$ is the error. But what about in general? Is that even a sensible question to ask?
+    \subitem {\gray McElreath would say this is terrible way to think about it - better to just say something like $ Y \sim N(\mu_x, \sigma)$ and $\mu_x = f(x)$ - this generalized better to non additive models. The additive nature in this case evident from normal distro.}
+  \item MAIN POINT: This is a specific claim about the conditional probability distribution $Pr(Y | X)$, namely that $Y$ is distributed like $\epsilon$ plus a value determined by $X$.
+    \subitem moreover, note that $X$ only comes in through the conditional mean $f(x)$, and it does not come into the variance of $Y$ (though that can and is often relaxed)
+  \item For quantitative responses, this is typically not the assumption, but rather that of some bernoulli process (for binary var) with $p$ of outcomes determined by $X$, that is $p(X)$. This binds both the conditional expectation and the variance to $x$.
+    \subitem {\gray McElreath would say $Y \sim Bern(p_x)$ and $p_x = P(X)$.}
+  \item His claim is that there are two main ways to think of this endeavor to find a good approximation for $f$
+    \begin{itemize}
+      \item Supervised learning - there is some algorithm that can take an input $x_i$ and map it to an output $\hat{f}(x_i)$, which can also adjust $\hat{f}$ based on the difference between predicted value and observed $y_i$. This algorithm should produce a map that can be used for predictions.
+      \item Function Approximation - ${x_i, y_i}$ are viewed as points in a (p+1)-dimensional Euclidean space. The idea is that the data satisfies some relationship $ y_i = f(x_i) + \epsilon_i$, and goal is to obtain a useful approximation to $f$ thatn is valid for all points in some region.
+	\subitem This paradigm encourages mathematical concepts of geometry and probability, so they prefer it.
+    \end{itemize}
+  \item often the approximations are restricted to some parameterized fammily of functions, and the challenge is to find the best parameter
+    \subitem ex: linear model - $f(x) = x^T\beta$ (params are $\beta$), or more generally a {\bf linear basis expansion}
+    $$f_\theta(x) = \sum_{k=1}^{K} h_k(x)\theta_k $$
+    where $h_k$ are a suitable set of functions or transformatiosn of the input vector.
+  \item often fit by minimizing the residual sum-of-squares (this is just least squares error).
+  \item A more general criteria is {\bf maximum likelihood estimation} aka MLE	
+    \begin{itemize}
+      \item given random sample $y_i, i=1\cdots N$ from a density $Pr_\theta(y)$,
+      \item log-probability of data is 
+	$$ L(\theta) = \sum_i log(Pr_\theta(y_i)) $$
+      \item the pricniple of MLE says most reasonable $\theta$ is that which maximizes $L(\theta)$
+      \item Least squares with additive error model $Y = f_\theta(x) + \epsilon$ with $\epsilon \sim N(0, \sigma^2)$ is equivalent to MLE using conditional likelihood $Pr(Y | X) = N(f_\theta(X), \sigma^2)$
+      \item Another example: Assume multinomial qualitative output $G$, with regression function $Pr(G|X)$. Suppose we have model $Pr(G = g_k | X = x) = p_{k,\theta}(x)$, then the loglikehood is
+	$$ L(\theta) = \sum_{i=1}^N \log p_{g_i, \theta}(x_i) $$
+	which is also referred to as the {\bf cross-entropy}
+    \end{itemize}
+  \item {\gray From entropy, $\int_x p_x log(p_x)$ to cross entropy $\int_x u_x log p_x$, then to observed cross entropy (the $\int_x u_x$ become the sum ovber observed values) $\sum_i log p(x_i)$}
+\end{itemize}	
 
 \end{document}
