@@ -95,6 +95,8 @@
   \item example: consider p-dimensional unit hypercube with uniformly distributed inputs. If we place a sub hypercube about the origin, such that a fraction $r$ of the data is contained there,
     the linear dimension of this hypercube must be $r^{1/p}$. For 10 dimensions, the expected edge length for $r=0.01$ is $0.63$.
     \subitem so to capture one percent of the data, you must go $\%63$ of the distance avaialble in each dimension! That is not local.
+  \item another manifestation comes from looking at unit sphere with uniform distribution - median value for closest to origin is about 1/2 radius. So every point close to edge.
+    \subitem this is a problem because for points on the edge, prediction is often extrapolation instead of interpolation. Which is much shakier.
   \item another manifestation of this curse is that the sampling density is proportional to $N^{1/}$ where $N$ is sample size and $p$ is dimension. So if in 1-D $N=100$ represents a dense sample size, the equivalent density in 10 D is $100^{10}$. 
     \subitem so in high D, all feasable samples are sparse.
   \item {\bf Bias-variance tradeoff} - nice little ``proof'' - setup: fix a point in domain $x_0$, get a large \emph{set of training samples} $\tau$ - study the expected error in prediction at $x_0$ that comes from the sampling.
