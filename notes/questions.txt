@@ -1,1 +1,2 @@
 1.) Show minimization of squared error loss leads to regression function being the conditional expectation - using variational calculus?
+2.) In the bias variance trade-off, what is the difference between $\hat{y}_0$ and $E_\tau[\hat{y}_0]$? clearly that later is the expected value over all samples, but what is the former? A single prediction? Over which sample?

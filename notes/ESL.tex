@@ -6,7 +6,7 @@
 \def\reals{\mathbb{R}}
 
 \title{Elements of Statistical Learning}
-\author{book by Hastings, Tibshirani, and Friedmann}
+\author{book by Hastie, Tibshirani, and Friedmann}
 \date{}
 
 \begin{document}
@@ -55,7 +55,7 @@
 
 \section{Statistical Decision Theory}
 \begin{itemize}
-  \item let $X \in \reals^p$ be real valued random input vector, $Y \in \reals$ be real valued randome ouput, with joint distribution $Pr(X,Y)$
+  \item let $X \in \reals^p$ be real valued random input vector, $Y \in \reals$ be real valued random ouput, with joint distribution $Pr(X,Y)$
   \item we seek function $f(X):\reals^p \to \reals$ for prediting $Y$ value
   \item for this we need a {\bf loss function} $L(Y, f(X))$ for penalizing errors in prediction
   \item most common loss function is: {\bf squared error loss} 
@@ -79,6 +79,29 @@
       $$ \hat{G} = g_k \quad \mbox{ if } \quad Pr(g_k | X = x) = max_{g \in G} Pr(g | X = x) $$
       that is, classify as the most probable class, using discrete conditional distribution $Pr(G|X)$.
       \subitem Error rate of the bayes classifier is often called the {\bf Bayes rate}.
+\end{itemize}
+
+\section{Local Methods in High Dimension}
+\begin{itemize}
+  \item Fitting/prediciton methods which rely on local approximations (like KNN), struggle as dimensions get high - {\bf the curse of dimentionality}
+  \item example: consider p-dimensional unit hypercube with uniformly distributed inputs. If we place a sub hypercube about the origin, such that a fraction $r$ of the data is contained there,
+    the linear dimension of this hypercube must be $r^{1/p}$. For 10 dimensions, the expected edge length for $r=0.01$ is $0.63$.
+    \subitem so to capture one percent of the data, you must go $\%63$ of the distance avaialble in each dimension! That is not local.
+  \item another manifestation of this curse is that the sampling density is proportional to $N^{1/}$ where $N$ is sample size and $p$ is dimension. So if in 1-D $N=100$ represents a dense sample size, the equivalent density in 10 D is $100^{10}$. 
+    \subitem so in high D, all feasable samples are sparse.
+  \item {\bf Bias-variance tradeoff} - nice little ``proof'' - setup: fix a point in domain $x_0$, get a large \emph{set of training samples} $\tau$ - study the expected error in prediction at $x_0$ that comes from the sampling.
+    \subitem notation: $\hat{y}_0$ is prediction using some model. $y_0$ is true value.
+    \begin{eqnarray}
+      MSE(x_0) &=& E_\tau[(y_0 - \hat{y}_0)^2]\\
+      	&=& E_\tau[(y_0 - E_\tau[\hat{y}_0] + E_\tau[\hat{y}_0] - \hat{y}_0)^2 ] \\
+	&=& E_\tau[(y_0 - E_\tau[\hat{y}_0])^2] + 2E_\tau[(y_0 - E_\tau[\hat{y}_0])(E_\tau[\hat{y}_0] - \hat{y}_0)] +   {\color{blue} E_\tau[(\hat{y}_0 - E_\tau[\hat{y}_0])^2] }\\
+	&=&  E_\tau[y_0^2] - 2E_\tau[y_0E\tau[\hat{y}_0]] + E_\tau[E_\tau[\hat{y}_0]^2] + 2E\tau[y_0E_\tau[\hat{y}_0]] - 2E_\tau[y_0\hat{y}_0] - 2E_\tau[E_\tau[\hat{y}_0]^2] + 2E_\tau[E_\tau[\hat{y}_0]\hat{y}_0] \nonumber
+\\ 	&& + {\color{blue} Var_\tau(\hat{y}_0)} \\
+&=& {\color{orange} y_0^2 -2y_0E_\tau[\hat{y}_0] + E_\tau[\hat{y}_0]^2} + {\color{red} 2y_0E_\tau[\hat{y}_0] - 2y_0E_\tau[\hat{y}_0] - 2E_\tau[\hat{y}_0]^2 + 2E_\tau[\hat{y}_0]^2} + {\color{blue} Var_\tau(\hat{y}_0)} \\
+	&=& {\color{orange} (y_0 - E_\tau[\hat{y}_0])^2} + {\color{blue} Var_\tau(\hat{y}_0)} \\ 
+	&=& {\color{orange} Bias_\tau(\hat{y}_0)^2} + {\color{blue} Var_\tau(\hat{y}_0)}
+    \end{eqnarray}
+    \subitem I think must consider one sample $S \in \tau$, to get $\hat{y}_0$, and then consider all samples $\tau$ to talk about $E_\tau[\hat{y}_0]$.
 \end{itemize}
 
 \end{document}
