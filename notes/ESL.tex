@@ -19,8 +19,52 @@
 
 \begin{document}
 \maketitle
+\chapter{LRS - Important stuff}
+\section{Questions}
+When he writes $f$ in ch2, is he referring specifically to the regression function $f(x) = E(Y|X=x)$ - or just any function? Is there a difference here, since the regression function, without any details on the joint distribution function is a just any function.
+\begin{itemize}
+  \item What is the real content behind the ``additive error assumption``? I.e., when he says, assume:
+    $$ Y = f(x) + \epsilon $$
+    where $E(\epsilon) = 0$ and $Var(\epsilon) = \sigma^2$.
+    \subitem Is f here the \emph{regression function} $f(x) = E(Y | X = x)$ by assumption? (it seems to be a consequence at the very least)
+    \subitem What is the Expectation in $E(\epsilon) = 0$ taken over?
+    \subitem What else is hidden in this assumtpion? how general or restrictive is it?
+    \subitem How is the joint probability distribution $Pr(X,Y)$ information encoded in here? And should $\epsilon$ be considered as another random variable.
+  \item I like the idea of many variables $x_1, \cdots x_v$ with independent prob densities, and $Y$ exactly determined by the vars. But then not measuring many variables, and hiding all their effects on $Y$ in a single $\epsilon$ r.v. -  so really we have $(X,\epsilon)$ as random variables.
+    \subitem develop this further\ldots.
+\end{itemize}
+
 \setcounter{chapter}{1}
 \chapter{Overview of Supervised Learning}
+
+\setcounter{section}{-1}
+\section{LRS Summary of Main Ideas}
+\begin{itemize}
+  \item have observables $(X,Y)$
+  \item want to predict $Y$ based on observations of $X$
+  \item given an observation of $x$, best predictor for $Y$ (where best is defined via squared error loss function) is $f(x) = E(Y | X = x)$
+  \item I assume this conditional expectation is defined using generally unkown joint probability distribution $Pr(X,Y)$
+  \item ultimately we are trying to find a useful approximation for $f$
+  \item The class of nearest neighbor methods can be viewed as a direct approximation to this conidtional expectation
+    \subitem suffers from the curse of dimensionality
+  \item talks about linear regression, a different class of model
+    \subitem no curse of dimensionality - but potentially high bias
+  \item generally most pairs $(X,Y)$ will not have a deterministic relationship like $Y = f(X)$
+    \subitem other unmeasured variables that also contribute to $Y$, including measurement error.
+  \item often assume $Y = f(X) + \epsilon$ where $E(\epsilon) = 0$, there errors are independent of $X$, and are indentically distributed
+    \subitem I am still uncertain as to its significance and import of this assumption {\gray
+    \subitem I guess generally all you have for sure is a conditioanl distribution $P(Y | X = x)$
+    $$ f_{Y|X}(y|x) = \frac{f_{X,Y}(x,y)}{f_X(x)} $$
+    where $f_X$ is the marginal density 
+  $$f_X(x) = \int_y f(x,y)dy $$ }
+  \item discusses two paradigms for obtaining said approximation $\hat{f}$ to $f$, given some data; the algorithmic gray box view, vs the geometric functional approximation view
+    \subitem I believe it is fruitfull to label the approximation to $f(x)$ and $\hat{f}(x;D)$; It acknowledges that you need both a procedure to get the approximation, and some data.
+  \item He then talks about the {\bf complexity} of models and the bias variance tradeof.
+    \subitem important point in all these proofs is to consider a single prediction point $x_0$ and a set $\tau$ of different (all possible?) training data sets $D$.
+    \subitem in the additive error model this encompasses both the observed $x$'s and the not directly observed $\epsilon$, which he typically just uses $Y = f + \epsilon$ assumption to separate the sources of error.
+    \subitem I this part should be done more clearly.
+\end{itemize}
+
 \section{Notation}
 \begin{itemize}
   \item Input variable typically denoted by $X$. 
@@ -118,15 +162,9 @@
 
 \section{Statistical Models, Supervised Learning and Functional Approximation}
 \begin{itemize}
-  \item Summarize overarching framework
-  \item have varaibles $(X,Y)$ which we observer repeatedly
-    \subitem there is some joint probability distribution for their observations $Pr(X,Y)$
-    \subitem {\gray Platonically speaking}
-  \item our goal is \emph{prediction}: want to find a function $f$ such that $f(X)$ is a ``reasonable'' prediction for $Y$
-  \item to define reasonable, need a loss function.
+  \item goal is to fint approximation $\hat{f}$ to the function $f$ that undeliers the predictive relationship between inputs and outputs
   \item Sum of squared errors loss leads to optimal $f$ being $f(x) = E(Y | X=x)$ - called the {\bf regression function}.
-    \subitem to get said expectation we need the conditional probability function, which we never have
-    \subitem so we typically approximate the regression funcion, with something like Nearest Neighbors algorithm, or some linear model
+  \item The class of nearest neighbor methods can be viewed as a direct approximation to this conidtional expectation
   \item More generally, we seek to approximate conditional probability $Pr(Y | X)$
   \item one common model: {\bf additive error model}
     \subitem assumes:
@@ -162,5 +200,53 @@
     \end{itemize}
   \item {\gray From entropy, $\int_x p_x log(p_x)$ to cross entropy $\int_x u_x log p_x$, then to observed cross entropy (the $\int_x u_x$ become the sum ovber observed values) $\sum_i log p(x_i)$}
 \end{itemize}	
+
+\section{Structured Regression Models}
+\begin{itemize}
+  \item infinite many solutions to min $RSS$ (they just have to interpolate between data somehow)
+  \item must impose restrictions on family of potential solutions - they are controlling the \emph{complexity} of solutions in one way or another
+    \subitem often impose some regularity on small neighborhoods
+    \subitem size of neighborhood dicatates strength of complexity reduction (in k-NN, k controls that)
+  \item main point: any method that constraints local variation in small isotropic neighborhoods will suffer curse of dimensionality; any method that overcomes the curse has some way of measuring neighborhoods which does not allow them to be small in all directions.
+\end{itemize}
+
+\section{Classes of Restricted Estimators}
+\begin{itemize}
+  \item main approaches listed below:
+  \item Roughness penalty
+    $$ PRSS(f;\lambda) = RSS(f) + \lambda J(f) $$
+    where $J$ is some functional that will large for rapidly changing functions over small reguins.
+    \subitem one example $J(f) = \int [f''(x)]^2 ds$. $\lambda = \infty$ only allows linear functions.
+    \subitem these are also called {\bf regularization} methods
+  \item Kernel methods
+    \subitem estimate the regression function by specyfing nature of local neighborhoods
+    \subitem use a {\bf kernel function} $K_\lambda(x_0, x)$ which assigns weights to points $x$ in a region around $x_0$
+    \subitem example, Gaussian density function
+    $$ K_\lambda(x_0, x) = \frac{1}{\lambda} \exp\left(-\frac{|| x-x_0||^2 }{2\lambda}\right) $$
+    \subitem one example is the Nadaraya-Watson weighted average, where $\hat{f}(x)$ is the weighted sum of all $y_i$ observations times kernels $K_\lambda(x,x_i)$.
+    \subitem In general we can define a \emph{local regression estimate} of $f(x_0)$ as $f_{\hat{\theta}}(x_0)$, where $\hat{\theta}$ minimizes
+    $$ RSS(f_\theta, x_0) = \sum_{i=1}^N K_\lambda(x_0, x_1)(y_i - f_\theta(x_i))^2 $$
+    and $f_\theta$ is some parameterized function, like a low order poly
+    \subitem ex:  $f_\theta(x) = \theta_0$, results in Ndaraya-Watson
+    \subitem or linear $f_\theta(x) = \theta_0 + \theta_1 x$ --- results in popular {\bf local linear regression model}
+    \subitem {\gray notice that $RSS$ here depends on both $f_\theta$ and $x_0$}
+  \item Basis functions 
+    \subitem includes linear and polynomial expansions (and much more)
+    \subitem postulate a structure
+    $$ f_\theta(x) = \sum_{m=1}^M \theta_m h_m(x) $$
+    \subitem note that it is linear in the $\theta$s.
+\end{itemize}
+
+\section{Model Selectio and the Bias Variance tradeoff}
+\begin{itemize}
+  \item all of the models above has a {\bf smoothing} or {\bf complexity parameter}
+  \item cannot use RSS on training data to determine these parameters
+    \subitem such method ends up picking a solution that interpolates between data and hence has zero residuals, but is wild in between and not good at predicting future data.
+  \item he goes through another - weirdly artifical - bias variance decomposition that show the dependency of the piece on the complexity parameter (for knn)
+  \item main idea: as model complexity increases, squared bias decreases but variance increases.
+  \item ideally, chose complexity parameter that leads to minimum test error.
+  \item obvious estimate of test error is train error. 
+  \item unfortunately test error does not properly account for error that comes from model complexity.
+\end{itemize}
 
 \end{document}
