@@ -275,5 +275,7 @@ TSWLatexianTemp*
 # Makeindex log files
 *.lpz
 
+# ESL specific
+data/
 
 Notebooks/.ipynb_checkpoints/
