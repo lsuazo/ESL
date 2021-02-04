@@ -21,18 +21,28 @@
 \maketitle
 \chapter{LRS - Important stuff}
 \section{Questions}
-When he writes $f$ in ch2, is he referring specifically to the regression function $f(x) = E(Y|X=x)$ - or just any function? Is there a difference here, since the regression function, without any details on the joint distribution function is a just any function.
 \begin{itemize}
-  \item What is the real content behind the ``additive error assumption``? I.e., when he says, assume:
-    $$ Y = f(x) + \epsilon $$
-    where $E(\epsilon) = 0$ and $Var(\epsilon) = \sigma^2$.
-    \subitem Is f here the \emph{regression function} $f(x) = E(Y | X = x)$ by assumption? (it seems to be a consequence at the very least)
-    \subitem What is the Expectation in $E(\epsilon) = 0$ taken over?
-    \subitem What else is hidden in this assumtpion? how general or restrictive is it?
-    \subitem How is the joint probability distribution $Pr(X,Y)$ information encoded in here? And should $\epsilon$ be considered as another random variable.
+  \item When he writes $f$ in ch2, is he referring specifically to the regression function $f(x) = E(Y|X=x)$ - or just any function? Is there a difference here, since the regression function, without any details on the joint distribution function is a just any function.
+  \item What is the real content behind the ``additive error assumption``? 
+    \begin{itemize}
+      \item I.e., when he says, assume:
+	    $$ Y = f(x) + \epsilon $$
+	    where $E(\epsilon) = 0$ and $Var(\epsilon) = \sigma^2$.
+	    \item Is f here the \emph{regression function} $f(x) = E(Y | X = x)$ by assumption? (it seems to be a consequence at the very least)
+	    \item What is the Expectation in $E(\epsilon) = 0$ taken over?
+	    \item What else is hidden in this assumtpion? how general or restrictive is it?
+	    \item How is the joint probability distribution $Pr(X,Y)$ information encoded in here? And should $\epsilon$ be considered as another random variable.
+	\end{itemize}
   \item I like the idea of many variables $x_1, \cdots x_v$ with independent prob densities, and $Y$ exactly determined by the vars. But then not measuring many variables, and hiding all their effects on $Y$ in a single $\epsilon$ r.v. -  so really we have $(X,\epsilon)$ as random variables.
     \subitem develop this further\ldots.
+  \item excercise 2.6 - what does \emph{reduced weighted least squares} mean?
 \end{itemize}
+
+\section{TODO}
+\begin{itemize}
+  \item  sovle problem 2.5 (after reading first few sections of chapter 3)
+\end{itemize}
+
 
 \setcounter{chapter}{1}
 \chapter{Overview of Supervised Learning}
@@ -248,5 +258,35 @@ When he writes $f$ in ch2, is he referring specifically to the regression functi
   \item obvious estimate of test error is train error. 
   \item unfortunately test error does not properly account for error that comes from model complexity.
 \end{itemize}
+
+\section{Excercises}
+\begin{itemize}
+  \item 2.1. In the context of classification problem, suppose each of the $K$ classes as associated with a vector $t_k$ whose components $(t_k)_i = \delta_{k,i}$. Moreover the prediction $\hat{y}$ is a vector of probabilities (with components $y_j$), which sum to $1$. Show that classifying via choosing the biggest probability $y_g$ is equivalent to choosing the $k$ via $min_k || t_k - \hat{y} ||$.
+    \subitem SOLUTION: assume L2 metric. Then must show $\sum_i (\delta_{g,i} - y_i)^2$ is less than $\sum_i (\delta_{j,i} - y_i)$ for all $j \neq g$. Just expand sum, cancel terms and it boils down to $y_g > y_j$.
+  \item 2.2 - Each class has a probability distribution that is the sum of 10 normals. The bayes clasifier is all the set of points where these two distributions are equal.
+  \item 2.3 - derive equation 2.24: consider N data points uniformly distributed in a p-dimensional sphere centered at the origin. Show that the median distance from the origin to the closes data point is given by
+    $$ d(p, N) = \left(1 = \frac{1}{2}^{1/N}\right)^{1/p} $$
+    \subitem SOLUTION: first, recall radial probaility density if $pr^{p-1}$, so CDF is $F_R(r) := P(R \leq r) = r^p$. Since he asks about the distribution of the min of $N$ points, we are dealing with order statistics. In this case we want the probability that the min value is less than or equal to some $r_0$. 
+    The probability that the min is less than $r_0$ is equal to the probability that all points are greater than $r_0$.
+    For a single point, the probability is $1-r_0^p$. For N points it is $(1-r_0^p)^N$. 
+    So the probability that the min is less then $r_0$ is equal to $1$ minus that expression. To get the median, simply set the result equal to 1/2 and then solve for $r_0$. QED.
+  \item 2.4. Another example of edge effect.
+    \begin{itemize}
+      \item start with spherical multinormal: $X \sim N(0, I_p)$.  distribution breaks up into product of $p$ independent $N(0,1)$.
+      \item expected distance from origin is just $E(x_1^2 + \cdots +x_n^2)$ (this is distribute according to $\chi_p^2$ by definition).
+      \item by linearity of expectation and the fact that $x_i$ is $N(0,1)$, the epected distance is just $p$ (each one is 1).
+      \item now fix a point $x_0$ (expected ditance is $p$). and define $\hat{a} = x_0/|x_0|$ (that is unit vector in that direction)
+      \item for each new sample $x_i$, let $z_i:= \hat{a} \cdot x_i$.
+      \item by expanding the sum, can show hat $E(z_i) = 0$ (taking the $x_0$ values as fixed constants)
+      \item similarly
+	\begin{eqnarray}
+	  E(z_i^2) &=&\sum_{j=1}^p E\left( \frac{(x_0)_j}{|x_0|} (x_i)_j\right)^2 + 0 \\
+	   &=& \sum\frac{(x_0)_j^2}{|x_0|^2} = 1
+	\end{eqnarray}
+	in line one we already expanded square of sum, and dropped all terms linear in the coordinates, since they lead to zero expectations.
+      \item This tells you that given a point $x_0$, its expected distance from origin if $p$. All other data points projection onto that direction have expected distance $1$. So as $p$ grows, each point sees itself as lying at the edge of the training data. 
+    \end{itemize}
+\end{itemize}
+
 
 \end{document}

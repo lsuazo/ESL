@@ -19,7 +19,7 @@ def scatter_points(data, color=None):
 #### Models ####
 
 def linear_model(X, Y, add_constant=True, verbose=True):
-    X_ext = sm.add_constant(X)
+    X_ext = sm.add_constant(X) if add_constant else X
     sm_mod = sm.OLS(Y, X_ext)
     sm_res = sm_mod.fit()
     if verbose:
