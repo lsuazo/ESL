@@ -15,6 +15,10 @@ def scatter_points(data, color=None):
     plt.scatter(data[:,0], data[:,1], c=color)
     
     
+def pair_plot(data):
+    sns.pairplot(data)
+    
+    
     
 #### Models ####
 

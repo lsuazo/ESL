@@ -389,7 +389,7 @@ Now on to the main ideas in chapter
    \item in summary
      \begin{eqnarray}
 	\hat{\beta} &\sim& N(\beta, ({\bf X}^T {\bf X})^{-1} \sigma^2)  \\
-	\hat{\sigma} &\sim& \frac{\sigma^2}{N-p-1} \chi^2_{N-p-1}
+	\hat{\sigma^2} &\sim& \frac{\sigma^2}{N-p-1} \chi^2_{N-p-1}
      \end{eqnarray}
    \item moreover they are statistically independent. {\red (How do we know this? they seem very tied together?)}
    \item now we create hypothesis tests and confidence intervals
@@ -398,7 +398,12 @@ Now on to the main ideas in chapter
 	 $$ z_j := \frac{\hat{\beta}_j}{\hat{\sigma} \sqrt{v_j}} $$
        where $v_j$ is the j-th diagonal element of $({\bf X^T X})^{-1}$
      \item first note $\hat{\beta}_j \sim N(\beta_j, \sigma^2 v_j)$ - this is just marginalizing the multivariate distribution. so $\hat{\beta}_j/\sqrt{v_j} \sim N(\beta_j, \sigma^2)$.
-     \item  
+     \item  so $z_j$ has a ration distribution between a normal and a chi distribution. Using the ration of distributions theorem, and a lot math, you can show that $z_j$ has a student-t distribution with $N - p -1$ dof, assuming that $\beta_j = 0$ (the null hypothesis).
+       \subitem hence large absolute values of $z_j$ lead to rejection of the null hypothesis.
+     \item if testing whether a group of coefficients have an impact together, we use the {\bf F-statistic}
+       $$ F = \frac{(RSS_0 - RSS_1)/(p_1-p_0)}{RSS_1/(N-p_1 - 1)}  $$
+       where subscript $1$ is for the bigger model with $p_1 + 1$ parameters, and $0$ is for the nested smaller model, having $p_1 - p_0$ parameters constrained to be zero.
+       \subitem the normalization factor is an estimate of $\sigma^2$.
    \end{itemize}
    
 \end{itemize}
