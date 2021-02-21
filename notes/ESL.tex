@@ -9,6 +9,9 @@
 \newcommand{\blue}{\color{blue}}
 \newcommand{\gray}{\color{gray}}
 \newcommand{\<}{\textless}
+\newcommand{\yh}{\hat{y}}
+\newcommand{\bX}{\bf{X}}
+\newcommand{\by}{\bf{y}}
 \renewcommand{\>}{\textgreater}
 
 \def\reals{\mathbb{R}}
@@ -247,7 +250,7 @@
     \subitem note that it is linear in the $\theta$s.
 \end{itemize}
 
-\section{Model Selectio and the Bias Variance tradeoff}
+\section{Model Selection and the Bias Variance tradeoff}
 \begin{itemize}
   \item all of the models above has a {\bf smoothing} or {\bf complexity parameter}
   \item cannot use RSS on training data to determine these parameters
@@ -286,6 +289,118 @@
 	in line one we already expanded square of sum, and dropped all terms linear in the coordinates, since they lead to zero expectations.
       \item This tells you that given a point $x_0$, its expected distance from origin if $p$. All other data points projection onto that direction have expected distance $1$. So as $p$ grows, each point sees itself as lying at the edge of the training data. 
     \end{itemize}
+\end{itemize}
+
+
+\chapter{Linear Methods for Regression}
+\setcounter{section}{-1}
+\section{LRS Summary of Main Ideas}
+\begin{itemize}
+  \item To understand the different perspectives, I think it is necessary to start from a very meta probability space. If we observe variables $X$ and $Y$ N times, we really have the randome meta-vector $(X_1, Y_1, \cdots X_N, Y_N)$, and this has some joint probability distribution.
+  \item from this we need certain assumptions to simplify to a single $(X,Y)$ probability distribution
+    \subitem presumably some spacetime-translation invariance or something like that.
+  \item but at a moments notice we must be ready to switch between then single/abstract $(X,Y)$ perspective, and the each one is its own random variable perspective
+  \item indeed if we fix the $X$'s (and assume independence of $Y$'s), it is useful to talk about $N$ conditional $Y|_{X=x_i}$
+\end{itemize}
+
+Now on to the main ideas in chapter
+\begin{itemize}
+  \item 
+\end{itemize}
+
+\setcounter{section}{1}
+\section{Linear Regression Models and Least Squares}
+\begin{itemize}
+  \item Start with a random vector $X^T = (X_1, \cdots X_p)$ and random variable $Y$.
+  \item linear model assumes that the regression function $Y = f(X)$ where $f(x) = E(Y|X=x)$ is (at least approximately) of the form  $f(x) = \sum_{j=1}^p \beta_j X_j$
+    \subitem the $\beta_j$'s are uknown parameters
+  \item let ${\bf X}$ be the $n\times p$ matrix of observations of $X$, and $y$ be the observations of $Y$ and $\beta = (\beta_0, \beta_1,..\beta_n)^T$
+  \item minimizng squared error loss function yield the following estimate $\hat{\beta}$ 
+    $$ \hat{\beta} = ({\bf X}^T {\bf X})^{-1} {\bf X}^T y $$
+    \subitem minimum squared error criterion is a statistically reasonable criterion if the observations $(x_i, y_i)$ represent a random draw from their population.
+    \subitem even if $x_i$'s not randomly drawn, it is still valid so long as $y_i$'s are conditionally independent given the inputs $x_i$. {\red What does this mean?}
+    \subitem {\gray perhaps this means, think not of (X,Y), but rather just $Y$, whose distribution is a function of $x$, and drawing from that family of distributions. As opposed to some meta distribution where y drawings depend on previous y drawings}
+  \item this process of minimizing squared errors, can be interpreted geometrically as finding the best $p$-dim hyperplane that approximates the data in $(p+1)$-dim space.
+  \item fitted values at the training inputs are:
+    $$ \hat{\bf y} = {\bf X}\hat{\beta} = {\bf X \left(X^T X\right)^{-1} X^T y} $$
+    \subitem the matrix ${\bf H = X \left(X^T X\right)^{-1} X^T } $ is called the {\bf hat matrix} - because it puts hat on y.
+  \item Hat matrix view shows a different geometrical interpretation:
+    \begin{itemize}
+      \item consider $\mathbb{R}^N$ this time (N number of observations)
+      \item the column vectors of $X$ span a subspace of $\mathbb{R}^N$ - call it Span({\bf X})
+      \item minimzing 
+	$$ RSS(\beta) = || {\bf y - X}\beta||^2$$
+	leads to an estimate $\hat{y}$ that lies in Span({\bf X}).
+	\subitem this can be seen by actually taking a derivative wrt $\beta$, set to 0, and solving - leads to ${\bf X}^T({\bf y-X}\beta) = 0$
+      \item hence ${\bf{\hat{y}}}$ is the \emph{orthgonal projection} of y, and {\bf H} is the projection matrix
+	  \subitem can check it satisfies $HH=H$
+	\item rank deficiencies leads to non-uniqueness. Typically taken care of by dropping some features.
+    \end{itemize}
+  \item now ``In order to pin down the sampling properties of $\hat{\beta}$, we now assume that the observations $y_i$ are uncorrelated and have constant variance $\sigma^2$, and that the [observations] $x_i$ are fixed (non-random)''
+    \subitem {\gray I read this: consider each $y_i$ as a random variable. That is don't marginalize $y$ but rather consider conditional distribution $y = f_{Y|X=x_i}(y)$. Assume this distribution has variance $\sigma^2$. And that these random variables are pairwise uncorrelated.}
+\end{itemize}
+
+\begin{itemize}
+  \item first, from solution for ${\hat{\beta}}$ we can prove that
+    $$ VAR(\hat{\beta})  = ({\bf X}^T{\bf X})^{-1} \sigma^2 $$
+  	\subitem This is relatively straight forward. Can prove $VAR(AZ) = A VAR(Z) A^T$ for constant matrix $A$ and random vector $Z$.
+	\subitem and uncorrelated, constant variance implies $VAR(Y) = {\bf I_n} \sigma^2$.
+   \item second: the typical estimate of $\sigma^2$ is
+     $$ \hat{\sigma}^2 = \frac{1}{N - p - 1} \sum_{i=1}^N (y_i - \hat{y}_i)^2. $$
+     This estimator is unbiased - that is: $E(\hat{\sigma}^2) = \sigma^2$.
+   \item basic idea of proof: \underline{Not in ESL}
+     \begin{itemize}
+       \item recall, ${\bf X}$ values are fixed (thus so is ${\bf H}$). Consider random vector $y = (y_1,\cdots,y_n)$ (where each is $Y$ conditional on fixed $x_i$). Further consider the random vector
+	 $$ \yh := {\bf H} y. $$
+	 \subitem recall what is still random is the as-yet to be observed $y = (y_1, \cdots y_n)$, which implies the $\hat{\beta}$ are random variables, and thus $\yh$ are too.
+       \item now
+	 $$  y -  \yh =  (1 - {\bf H})y $$
+	 substituting $y = {\bf X}\beta + \epsilon$ and using $(1-{\bf H)X} = 0$ yields
+	 $$ y - \yh = (1 - {\bf H})\epsilon $$
+	 \subitem {\gray note that $y-X\beta = \epsilon$, but $y - \yh = (1-H)\epsilon$, that is due to the difference in $\beta$ and $\hat{\beta}$.}
+       \item $ 1 -{\bf H}$ is also a projection matrix, and it projects onto space perpendicular so Span($X$). Call that space Span($X$)${}^\perp$.
+       \item there exits an $N\times (N-p-1)$ matrix $U$ such that $1 - {\bf H}$ can be written as $UU^T$ (by nature of being a projection operator)
+	 \subitem basically $U$ has as columns an orthnormal basis for the space Span$(X)^\perp$ (which is (N-p-1) dimensional)
+       \item so we have
+	 \begin{eqnarray}
+	   \sum_{i=1}^N (y_i - \yh_i)^2 &=& || y -\yh ||^2  \\
+	   	&=& || UU^T\epsilon ||^2 \\
+		&=& \epsilon^TUU^TUU^T \epsilon \\
+		&=& \epsilon^T UU^T \epsilon \\
+	      	&=& || U^T\epsilon ||^2	
+	 \end{eqnarray}
+       \item Now, the assumption is that $\epsilon = (\epsilon_1, \cdots \epsilon_N) \sim N(0, I_N\sigma^2)$, so $U^T\epsilon \sim N(0, U^TU\sigma^2)$ and $U^TU = I_{N-p-1}$
+       \item so $E||U^T\epsilon||^2 = (N - p - 1) \sigma^2 $
+       \item more specifically $||U^T\epsilon|| \sim \sigma^2\chi^2_{N-p-1}$
+       \item comment: clearly, for this proof we already added the more strict assumption referred to in the next lines
+     \end{itemize}
+   \item Then ``To draw inferences about the parameters and the model, additional assumptions are needed'' - asssume:
+     \begin{itemize}
+       \item the conditional expectation of $Y$ really is linear in the $X$
+       \item the deviations of $Y$ around its expectation are additive and gaussian, hence
+	 \begin{equation}
+	   Y = E(Y|X_1, \cdots X_p) + \epsilon 
+	 \end{equation}
+	 where $\epsilon \sim N(0, \sigma^2)$
+     \end{itemize}
+     Now it is easy to show 
+     $$ \hat{\beta} \sim N(\beta, ({\bf X}^T {\bf X})^{-1} \sigma^2) $$
+     \subitem to do this, think of each observation $y_i$ as a random variable $Y_i$, which by assumption is $Y_i = E(Y|X=x_i) + \epsilon_i$, where the $\epsilon_i$ are i.i.d $N(0,\sigma^2)$. Plugging this in, yields said result. 
+   \item in summary
+     \begin{eqnarray}
+	\hat{\beta} &\sim& N(\beta, ({\bf X}^T {\bf X})^{-1} \sigma^2)  \\
+	\hat{\sigma} &\sim& \frac{\sigma^2}{N-p-1} \chi^2_{N-p-1}
+     \end{eqnarray}
+   \item moreover they are statistically independent. {\red (How do we know this? they seem very tied together?)}
+   \item now we create hypothesis tests and confidence intervals
+     \begin{itemize}
+       \item for a specific coefficient $\beta_j$ we the {\emph standardized coefficient} or {\bf Z-score} is defined as
+	 $$ z_j := \frac{\hat{\beta}_j}{\hat{\sigma} \sqrt{v_j}} $$
+       where $v_j$ is the j-th diagonal element of $({\bf X^T X})^{-1}$
+     \item first note $\hat{\beta}_j \sim N(\beta_j, \sigma^2 v_j)$ - this is just marginalizing the multivariate distribution. so $\hat{\beta}_j/\sqrt{v_j} \sim N(\beta_j, \sigma^2)$.
+     \item  
+   \end{itemize}
+   
 \end{itemize}
 
 

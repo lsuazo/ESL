@@ -1,0 +1,54 @@
+\documentclass[a4paper]{article}
+\usepackage[margin=0.5in]{geometry}
+\usepackage{amssymb}
+\usepackage{xcolor}
+
+
+\newcommand{\brown}{\color{brown}}
+\newcommand{\red}{\color{red}}
+\newcommand{\blue}{\color{blue}}
+\newcommand{\gray}{\color{gray}}
+\newcommand{\<}{\textless}
+\renewcommand{\>}{\textgreater}
+
+\def\reals{\mathbb{R}}
+
+\begin{document}
+
+\section{Linear Regression}
+Setup:
+\begin{itemize}
+  \item Start with a random vector $X^T = (X_1, \cdots X_p)$ and random variable $Y$.
+  \item Will approximate regression function $Y = f(X)$ where $f(x) = E(Y|X=x)$ with linear function  $f(x) = \sum_{j=1}^p \beta_j X_j$
+  \item let ${\bf X}$ be the $n\times p$ matrix of observations of $X$, and $y$ be the observations of $Y$. 
+  \item easy to show that minimizng squared error loss function yield the following estimate $\hat{\beta}$ 
+    $$ \hat{\beta} = ({\bf X}^T {\bf X})^{-1} {\bf X}^T y $$
+  \item now, from ESL book: ``In order to pin down the sampling properties of $\hat{\beta}$, we now assume that the observations $y_i$ are uncorrelated and have constant variance $\sigma^2$, and that the [observations] $x_i$ are fixed (non-random)''
+\end{itemize}
+
+Results:
+\begin{itemize}
+  \item first, from solution for ${\hat{\beta}}$ we can prove that
+    $$ VAR(\hat{\beta})  = ({\bf X}^T{\bf X}){^-1} \sigma^2 $$
+  	\subitem This is relatively straight forward. Can prove $VAR(AZ) = A VAR(Z) A^T$ for constant matrix $A$ and random vector $Z$. And uncorrelated, constant variance implies $VAR(Y) = {\bf I_n} \sigma^2$.
+   \item second: the typical estimate of $\sigma^2$ is
+     $$ \hat{\sigma}^2 = \frac{1}{N - p - 1} \sum_{i=1}^N (y_i - \hat{y}_i)^2. $$
+     This estimator is unbiased - that is: $E(\hat{\sigma}^2) = \sigma^2$.
+     \subitem I cannot prove this. But ESL simply brush past it, because I assume it is a very well known (and perhaps very easy) result.  {\red This is what I need help with.}
+   \item Then they say: ``To draw inferences about the parameters and the model, additional assumptions are needed'' - they asssume:
+     \begin{itemize}
+       \item the conditional expectation of $Y$ really is linear in the $X$
+       \item the deviations of $Y$ around its expectation are additive and gaussian, hence
+	 \begin{equation}
+	   Y = E(Y|X_1, \cdots X_p) + \epsilon 
+	 \end{equation}
+	 where $\epsilon \sim N(0, \sigma^2)$
+     \end{itemize}
+     Now it is easy to show 
+     $$ \hat{\beta} \sim N(\beta, ({\bf X}^T {\bf X})^{-1} \sigma^2) $$
+     \subitem to do this, think of each observation $y_i$ as a random variable $Y_i$, which by assumption is $Y_i = E(Y|X=x_i) + \epsilon_i$, where the $\epsilon_i$ are i.i.d $N(0,\sigma^2)$. Plugging this in, yields said result. 
+\end{itemize}
+
+
+
+\end{document}
