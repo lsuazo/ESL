@@ -10,8 +10,10 @@
 \newcommand{\gray}{\color{gray}}
 \newcommand{\<}{\textless}
 \newcommand{\yh}{\hat{y}}
-\newcommand{\bX}{\bf{X}}
-\newcommand{\by}{\bf{y}}
+\newcommand{\yb}{\bar{y}}
+\newcommand{\bX}{{\bf{X}}}
+\newcommand{\bx}{{\bf{x}}}
+\newcommand{\by}{{\bf{y}}}
 \renewcommand{\>}{\textgreater}
 
 \def\reals{\mathbb{R}}
@@ -268,7 +270,7 @@
     \subitem SOLUTION: assume L2 metric. Then must show $\sum_i (\delta_{g,i} - y_i)^2$ is less than $\sum_i (\delta_{j,i} - y_i)$ for all $j \neq g$. Just expand sum, cancel terms and it boils down to $y_g > y_j$.
   \item 2.2 - Each class has a probability distribution that is the sum of 10 normals. The bayes clasifier is all the set of points where these two distributions are equal.
   \item 2.3 - derive equation 2.24: consider N data points uniformly distributed in a p-dimensional sphere centered at the origin. Show that the median distance from the origin to the closes data point is given by
-    $$ d(p, N) = \left(1 = \frac{1}{2}^{1/N}\right)^{1/p} $$
+    $$ d(p, N) = \left(1 - \frac{1}{2}^{1/N}\right)^{1/p} $$
     \subitem SOLUTION: first, recall radial probaility density if $pr^{p-1}$, so CDF is $F_R(r) := P(R \leq r) = r^p$. Since he asks about the distribution of the min of $N$ points, we are dealing with order statistics. In this case we want the probability that the min value is less than or equal to some $r_0$. 
     The probability that the min is less than $r_0$ is equal to the probability that all points are greater than $r_0$.
     For a single point, the probability is $1-r_0^p$. For N points it is $(1-r_0^p)^N$. 
@@ -405,7 +407,89 @@ Now on to the main ideas in chapter
        where subscript $1$ is for the bigger model with $p_1 + 1$ parameters, and $0$ is for the nested smaller model, having $p_1 - p_0$ parameters constrained to be zero.
        \subitem the normalization factor is an estimate of $\sigma^2$.
    \end{itemize}
-   
+ \end{itemize}
+
+\subsection{Gauss Markov}
+ \begin{itemize}
+ \item {\blue Gauss Markov theorem}
+   \begin{itemize}
+     \item VIP result!
+     \item context: assume linear model $ y = X\beta + \epsilon$
+     \item assume we are trying to estimate any linear combination of the $\beta$ parameters - say $\theta = a^T\beta$
+       \subitem one such example is prediction $f(x_0) = x_0^T\beta$
+     \item claim: least squares estimate 
+       $$ \hat{\theta} = a^T \hat{\beta} = a^T {\bf (X^TX)^{-1}X^T}y $$
+       has the smallest variance among all \emph{unbiased}, \emph{linear estimates}.
+       \subitem this is linear in the following sense: considering ${\bf X}$ to be fixed, then $\hat{\theta}$ is a linear function $c_0^Ty$ of the response vector $y$.
+     \item in other words, given any other estimate $\tilde{\theta} = c^Ty$, such that $E(c^Ty) = a^T\beta$, then
+       $$ Var(a^T\beta) \leq Var(c^Ty) $$
+     \item Proof of this and slight generalization is excercise 3.3
+   \end{itemize}
+ \item Why do we care?
+   \begin{itemize}
+     \item MSE for an estimator $\tilde{\theta}$, estimating $\theta$, can be decomposed (bias-var tradeoff)
+       $$ MSE(\tilde{\theta}) = E(\tilde(\theta) - \theta)^2 = Var(\tilde{\theta}) + \left(E(\tilde{\theta} - \theta\right)^2 $$
+       \item so amongst all unbiased estimators, the lowest error is the lowest variance
+       \item moreover, expected prediction error, which is what we ultimately care about, is intimately tied to MSE
+	 \subitem given prediction $Y_0 = f(x_0) + \epsilon_0$ for new input $x_0$, the EPE for an estimate $\tilde{f}(x_0)$ is
+	 $$ E(Y_0 - \tilde{f}(x_0)) = \sigma^2 + MSE(\tilde{f}(x_0)) $$
+   \end{itemize}
+ \item However, if we lift unbiased restriction, we can often get an estimator with even lower MSE. Will see next section.
+   \subitem All models are wrong (here read biased), but some models are useful.
+\end{itemize}
+
+\subsection{From Univariate to MultiVariate regression}
+\begin{itemize}
+  \item start with no-intercept, univarate linear regression 
+    $$ Y = X\beta + \epsilon$$
+  \item letting ${\bf y} = (y_1,\cdots y_N)^T$ and ${\bf x} = (x_1, \cdots x_N)^T$, and using $\langle a, b \rangle$ to denote inner prod, then we can write
+    \begin{eqnarray}
+      \hat{\beta} &=& \frac{\langle \bx, \by \rangle}{\langle \bx, \bx \rangle} \\
+      {\bf r} &=&  \by - \bx \hat{\beta}
+    \end{eqnarray}
+    where ${\bf r}$ is the resisual vector
+  \item Now, consider the \emph{multiple linear regression model} where inputs are all orthgonal - that is $\langle \bx_i, \bx_j \rangle = 0$ for $i\neq j$
+    \subitem this means that $\bX^T\bX$ is diagonal with values $\langle \bx_i, \bx_i \rangle$.
+    \subitem this leads to 
+    $$ \hat{\beta}_j = \frac{\langle \bx_j, \langle \by \rangle}{\lange \bx_j, \bx_j \rangle} $$
+    which is just the regression coefficient for each one independently
+  \item So the difference between man univariate regression coeffieicents and a general multivariate regression solution, is the extent to which the input variables are not orthgonal to each other.
+    \subitem  {\gray NOTE THEY ARE NOT SAYING UNCORRELATED - BUT ORTHGONAL!}
+\end{itemize}
+
+\section{Excercises}
+excercise 3.1
+\begin{itemize}
+  \item Uses known relationship where student-t squared is f-distribution (for the appropriate parameters)
+\end{itemize}
+
+excercise 3.3
+\begin{itemize}
+  \item The typical proof for this is all over the web - it starts by letting $c = a + d$, deriving a constraint on $d$ based on the unbiased nature and the using that constraint in tha variance expansion. The generalization to vector/matrix is straightforwadr (part b).
+  \item I attempted a slitghly different proof. Here is the gist:
+  \begin{itemize}
+    \item OLS estimator $\theta = a \cdot \hat{\beta}$ where $a$ is a constant and $[a] = p\times 1$.
+    \item other linear estimator $\tilde{\theta} = c \cdot y$ which is also unbiased
+      \subitem thus $c \cdot \bar{y} = a \cdot \beta$
+    \item cauchy schwarz says
+      $$ c\cdot c \geq \frac{(c \cdot \bar{y})^2}{\bar{y}\cdot \bar{y}} $$
+    \item now $c\cdot\bar{y} = a \cdot \beta$ so 
+      \begin{eqnarray}
+	(c.\bar{y})^2 &=& (a \cdot \beta)^2 \\
+			&=& (a \cdot E(\hat{\beta})^2 \\
+			  &=& (a \cdot E\left((X^TX)^{-1}X^Ty\right))^2 \\
+			  &=& (a \cdot (X^TX)^{-1}X^T\yb)^2 
+      \end{eqnarray}
+    \item now the last line can be rewritten as
+      \begin{eqnarray}
+	\cdots &=& (a^T(X^TX)^{-1}X^T\yb)(\yb^TX(X^TX)^{-1}{}^Ta^T)
+      \end{eqnarray}
+    \item now, I don't see how to do it right now, but if we could group the middle $\yb$ together and somehow factor it out, then the expression would simplify to 
+      $$a^T(X^TX)^{-1}a(\yb^T\yb).$$
+    \item then put back into cauchy-schwarz above would yield
+      $$c\cdot c \geq a^T(X^TX)^{-1}a$$
+      which is what was to be proven. but I must justify that leap somehow. Perhaps not a strict equality, but using an inequality. Will continue down this path later.
+  \end{itemize}
 \end{itemize}
 
 
