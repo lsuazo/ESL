@@ -451,13 +451,53 @@ Now on to the main ideas in chapter
   \item Now, consider the \emph{multiple linear regression model} where inputs are all orthgonal - that is $\langle \bx_i, \bx_j \rangle = 0$ for $i\neq j$
     \subitem this means that $\bX^T\bX$ is diagonal with values $\langle \bx_i, \bx_i \rangle$.
     \subitem this leads to 
-    $$ \hat{\beta}_j = \frac{\langle \bx_j, \langle \by \rangle}{\lange \bx_j, \bx_j \rangle} $$
+    $$ \hat{\beta}_j = \frac{\langle \bx_j, \langle \by \rangle}{\langle \bx_j, \bx_j \rangle} $$
     which is just the regression coefficient for each one independently
   \item So the difference between man univariate regression coeffieicents and a general multivariate regression solution, is the extent to which the input variables are not orthgonal to each other.
     \subitem  {\gray NOTE THEY ARE NOT SAYING UNCORRELATED - BUT ORTHGONAL!}
+  \item now consider \emph{ univariate regression} with an intercept. Can show that the least squares coefficient of $\bx$ has the form
+    $$ \frac{\langle\bx - \bar{x}{\bf 1}, \by \rangle}{\langle \bx - \bar{x}{\bf 1}, \bx - \bar{x}{\bf 1}\rangle} $$
+	\subitem this can be arrived at by 1) regressing $\bx$ on ${\bf 1}$ and getting the residual ${\bf z} = \bx - \bar{x}{\bf 1}$ and then 2) reressing $\by$ on residual ${\bf x}$
+      \item  This can be generalized to $p$ variables, into what is called {\bf Regression by Succesive orthgonalization} aka {\bf Gram-Schmidt procedure for multiple regression}
+   \item process: choose a variable whose coeffient you will calulate, say $\bx_k$, then
+     \begin{itemize}
+       \item initialize ${\bf z}_0 = \bx_0 = 1$
+       \item for all $j \neq k$ regress $x_j$ on all the ${\bf z}$s produce so far. They are orthogonal, so coefficient is univariate regression coefficient.
+	 \subitem then get the residual ${\bf z}_j$. 
+       \item finally regress $\bx_k$ on all the $p-1$ ${\bf z}$s, and obtain its residual ${\bf z}_k$.
+	 \begin{equation}
+	   \hat{\beta}_p = \frac{\langle {\bf z}_k, \by \rangle}{\langle {\bf z}_k, {\bf z}_k \rangle} \label{eq:coeff1}
+	 \end{equation}
+       \item Then regress $\by$ on ${\bf z}_k$ to give ${\hat{\beta}}_k$.
+     \end{itemize}
+   \item repeat this, from scratch for each $p$
+   \item since all the ${\bf z}$s are orthogonal, they form a basis space for Span \bX, therefore the least squares projection onto this space is ${\yh}$. Since ${\bf z}_k$ alone involves $\bx_k$, with coefficient 1, that means that ${\bf z}_k$ coefficient of $\yh$ is indeed the $\bx_k$ coefficient.
+   \item in conclusion: ``The multiple regression coefficient $\hat{\beta}_j$ represents the additional contribution of $\bx_j$ on $\by$, after $\bx_j$ has been adjusted for $\bx_0, \cdots, \bx_{j-1}, \bx_{j+1},\cdots,\bx_p$.
+   \item from (\ref{eq:coeff1}) can obtain $Var(\hat{\beta}_k) = \sigma^2/||{\bf z}_k||$.
+     \subitem this says that the precision with which we can estimate that coefficient depends on the length of the residual - that is, how much new info is in that 
+   \item One pass with {\bf QR decomposition} via Gram schmidt
+     \begin{itemize}
+       \item after one pass of gram-schmidt, can write
+	 $$ \bX = {\bf Z}{\bf \Gamma} $$
+	where ${\bf Z}$ has as columns the ${\bf z}_j$ (in order), and the ${\bf \Gamma}$ is the upper triangular matrix that converts it to $\bX$ - basically the regression coefficients obtained during gram-schmidt
+      \item Introduce the diagonal matrix ${\bf D}$, with jth diagonal entry $D_jj = ||{\bf z}_j||$
+	\begin{eqnarray}
+	  \bX &=& {\bf Z D^{-1} D \Gamma } \\
+	   &=& {\bf QR}
+	\end{eqnarray}
+	this is the \emph{QR decomposition} of \bX. ${\bf Q}$ satisfies ${\bf Q}^T{\bf Q} = {\bf I}$ and ${\bf R}$ is upper triangular.
+      \item can show that
+	\begin{eqnarray}
+	  {\bf R}\hat{\beta}  &=& {\bf Q}^T\by \\
+	  \hat{\by} &=& {\bf QQ}^{T}\by
+	\end{eqnarray}
+	The top equation is easy to solve because $R$ is upper triangular.
+
+     \end{itemize}
 \end{itemize}
 
 \section{Excercises}
+
 excercise 3.1
 \begin{itemize}
   \item Uses known relationship where student-t squared is f-distribution (for the appropriate parameters)
@@ -490,6 +530,11 @@ excercise 3.3
       $$c\cdot c \geq a^T(X^TX)^{-1}a$$
       which is what was to be proven. but I must justify that leap somehow. Perhaps not a strict equality, but using an inequality. Will continue down this path later.
   \end{itemize}
+\end{itemize}
+
+excercise 3.4
+\begin{itemize}
+  \item see companion notebook: Ch3\_02\_GramSchmidtRegressionAndQRDecomp
 \end{itemize}
 
 
