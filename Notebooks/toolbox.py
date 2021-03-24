@@ -11,8 +11,31 @@ import seaborn as sns
 
 ##### Plotting #####
 
-def scatter_points(data, color=None):
-    plt.scatter(data[:,0], data[:,1], c=color)
+def scatter_points(data, color=None, show_origin=False, equal_scale=False):
+    fig, ax = plt.subplots(1,1, figsize=(10,10))
+    x = data[:,0]
+    y = data[:,1]
+    
+    if equal_scale:
+        ax.set_aspect('equal', 'box')
+    
+    if show_origin:
+        padx = (x.max() - x.min())/10
+        pady = (y.max() - y.min())/10
+
+        xmin = np.min([x.min()-padx, -1])
+        xmax = np.max([x.max()+padx, 1])
+        ymin = np.min([y.min()-pady, -1])
+        ymax = np.max([y.max()+pady, 1])
+
+        ax.set_xlim(xmin, xmax)
+        ax.set_ylim(ymin, ymax)
+        
+        ax.axhline(0, linestyle='--', alpha=0.25, color='k')
+        ax.axvline(0, linestyle='--', alpha=0.25, color='k')
+    
+    ax.scatter(x, y, c=color)
+    
     
     
 def pair_plot(data):
