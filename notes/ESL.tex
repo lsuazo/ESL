@@ -1,3 +1,26 @@
+\documentclass[a4paper]{report}
+\usepackage[margin=0.5in]{geometry}
+\usepackage{amssymb}
+\usepackage{xcolor}
+
+
+\newcommand{\brown}{\color{brown}}
+\newcommand{\red}{\color{red}}
+\newcommand{\blue}{\color{blue}}
+\newcommand{\gray}{\color{gray}}
+\newcommand{\<}{\textless}
+\newcommand{\yh}{\hat{y}}
+\newcommand{\yb}{\bar{y}}
+\newcommand{\bX}{{\bf{X}}}
+\newcommand{\bx}{{\bf{x}}}
+\newcommand{\by}{{\bf{y}}}
+\renewcommand{\>}{\textgreater}
+
+\def\reals{\mathbb{R}}
+
+\title{Elements of Statistical Learning}
+\author{book by Hastie, Tibshirani, and Friedmann}
+\date{}
 
 \begin{document}
 \maketitle
@@ -428,7 +451,7 @@ Now on to the main ideas in chapter
   \item Now, consider the \emph{multiple linear regression model} where inputs are all orthgonal - that is $\langle \bx_i, \bx_j \rangle = 0$ for $i\neq j$
     \subitem this means that $\bX^T\bX$ is diagonal with values $\langle \bx_i, \bx_i \rangle$.
     \subitem this leads to 
-    $$ \hat{\beta}_j = \frac{\langle \bx_j, \langle \by \rangle}{\langle \bx_j, \bx_j \rangle} $$
+    $$ \hat{\beta}_j = \frac{\langle \bx_j, \by \rangle}{\langle \bx_j, \bx_j \rangle} $$
     which is just the regression coefficient for each one independently
   \item So the difference between man univariate regression coeffieicents and a general multivariate regression solution, is the extent to which the input variables are not orthgonal to each other.
     \subitem  {\gray NOTE THEY ARE NOT SAYING UNCORRELATED - BUT ORTHGONAL!}
@@ -471,7 +494,41 @@ Now on to the main ideas in chapter
 	The top equation is easy to solve because $R$ is upper triangular.
 
      \end{itemize}
+   \item can easily generalize to multiple outputs.
+     \subitem Basically write each component as its own regression
+     \subitem if erros uncorrelated, just sum all dimensions - least square solution has exactly same form
+     \subitem if there is reason to believe errors are correlated, then loss function is different, but optimal estimate is still the same.
 \end{itemize}
+
+\section{Subset selection}
+\begin{itemize}
+  \item Main idea: use training data to produce sequence of models of varying complexity, indexed by a single parameter,
+    \subitem Use CV or AIC (will talk about later) to choose value of complexity parameter
+    \subitem CV is performed using only training data since it is being used to train the metaparameter.
+  \item four approaches using choice of predictors
+    \begin{itemize}
+      \item best-subset selection
+	\subitem for each $N \in \{ 0, \cdots, p\}$, choose best choice of predictors.
+      \subitem feasible only for $p \sim\leq 40$
+      \item forward step-wise selection
+	\subitem start with just intercept, then one at a time add predictor that most improves fit
+	\subitem greedy algorithm
+	\subitem much faster computationally and much more constrained, so less variance but more bias
+      \item backwards stepwise selection
+	\subitem similar but start with full set and take one out at a time (drop var with smallest z-score)
+      \item forward stagewise selection
+	\subitem start with $ y = \yb + 0x_1 + \cdots $ with $x$s centered
+	\subitem compute residual; pick var most correlated to residual; add regression to residual
+	\subitem this is slow, but good in high dimensions
+	\subitem eventually converges to OLS
+    \end{itemize}
+  \item be careful - must account for multiple testing problem of overfitting
+  \item also must consider variables that naturally come in groups (like dummy variables)
+  \item {\red question: in the ten-fold CV procedure, say in best subset selection, for a given number of predictors $k$, each fold might yield a different set of predictors. So in choosing the best model, we cannot really be choosing the best $k$ predictors, but rather choosing the parameter $k$. Correct? And then fit it again using the whole training data?}
+  \item The CV procedure can be used to provide standard error bands
+  \item in the end they use the  {\bf one standard error rule} - pick the most parsimonious model within one standard error of the minimum.
+\end{itemize}
+
 
 \section{Excercises}
 

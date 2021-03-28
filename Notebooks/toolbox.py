@@ -11,8 +11,7 @@ import seaborn as sns
 
 ##### Plotting #####
 
-def scatter_points(data, color=None, show_origin=False, equal_scale=False):
-    fig, ax = plt.subplots(1,1, figsize=(10,10))
+def scatter_points(ax, data, color=None, show_origin=False, equal_scale=False):
     x = data[:,0]
     y = data[:,1]
     
@@ -36,12 +35,23 @@ def scatter_points(data, color=None, show_origin=False, equal_scale=False):
     
     ax.scatter(x, y, c=color)
     
+def plot_infinite_line(ax, p0, p1):
+    slope = (p1[1] - p0[1])/(p1[0] - p0[1])
+    xmin, xmax = ax.get_xlim()
+    ax.plot([xmin, xmax], [xmin*slope, xmax*slope], color='r', alpha=0.25)
+    
+    
     
     
 def pair_plot(data):
     sns.pairplot(data)
     
     
+
+#### Data Processing####
+def demean(X):
+    return X - X.mean(axis=0)
+
     
 #### Models ####
 
