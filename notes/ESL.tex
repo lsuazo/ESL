@@ -529,6 +529,36 @@ Now on to the main ideas in chapter
   \item in the end they use the  {\bf one standard error rule} - pick the most parsimonious model within one standard error of the minimum.
 \end{itemize}
 
+\section{Shrinkage Methods}
+\begin{itemize}
+  \item Ridge regression - impose L2 penalty on coefficients
+    \begin{equation}
+      \hat{\beta}_{ridge} = argmin_{\beta} \left\{ \sum_{i=1}^N\left(y_i - \beta_0 - \sum_{j=1}^p x_{ij}\beta_j  \right)^2 + \lambda \sum_{j=1}^p \beta_j^2\right\} \label{eq:ridge}
+    \end{equation}
+    \subitem here $\lambda$ id s complexity parameter
+    \subitem there is an equivalent formulation in using regular OLS with constraint that sum of squares of betas are less than some fixed value (which is tunable - and related to $\lambda$ above).
+  \item VIP: notice that the intercept $\beta_0$ has been left out of the penalty term. Including it would make procedure dependent on origin of $Y$.
+  \item VIP: \underline{The ridge solutions are not equivalent under scaling of the inputs}. So one normally standardizes inputs before solving.
+  \item this procedure is very useful when there are many correlated variables
+  \item Note: if we start with centered $X$ - namely use $\tilde{x}_{ij} := x_{ij} - \bar{x}_j$  - and obtain ridge regression coefficients $\hat{\beta}_c$, simple substitution into ridge definition (\ref{eq:ridge}), yields that centered and uncentered solutions are related via
+    \begin{eqnarray}
+      \beta^0 &=& \beta_c^0 + \sum_{j=1}^p \bar{x}_j\beta_c^j \label{eq:3.5} \\
+      \beta^j &=& \beta_c^j
+    \end{eqnarray}
+  \item Furthermore, the $\beta_0$ appears only in the first piece, and its minimum value can be easily shown to be (in the centerd case)
+    $$ \beta_0 = \bar{y} $$
+  \item The remaining problem is now reduced to a regression without intercept, with centered $X$ and $Y$. Henceforth we can assume that this is the starting point of ridge regression.
+    \begin{itemize}
+      \item we can rewrite ridge criterion as
+	$$ RSS(\lambda) = (\by - \bX \beta)^T(\by - \bX \beta) $$
+      \item solution is
+	$$ \hat{\beta}^{ridge} = \left( \bX^T\bX + \lambda I\right)^{-1}\bX^T\by $$
+    \end{itemize}
+  \item Note solution is again linear in $\by$.
+  \item The addition of $\lambda I$ to Gram matrix makes it non-singular. This was the original motivation for introduction of ridge regression.
+  \item ridge regression can also be seen as the mean or mode of the bayesian posterior with likelihood $ y_i \sim N(\beta_0 + x_i^T \beta, \sigma^2)$ and priors $\beta_j \sim N(0, \tau^2)$, with both $\tau$ and $\sigma$ assumed known.
+\end{itemize}
+
 
 \section{Excercises}
 
@@ -569,6 +599,16 @@ excercise 3.3
 excercise 3.4
 \begin{itemize}
   \item see companion notebook: Ch3\_02\_GramSchmidtRegressionAndQRDecomp
+\end{itemize}
+
+excercise 3.5
+\begin{itemize}
+  \item Done in situ, see equation (\ref{eq:3.5}).
+\end{itemize}
+
+excercise 3.6
+\begin{itemize}
+  \item Very straighforward. Just multiply normals and take negative log.
 \end{itemize}
 
 

@@ -1,5 +1,8 @@
 from IPython.display import display
+from sklearn.linear_model import ElasticNet, Lasso, LinearRegression, Ridge
 from sklearn.metrics import confusion_matrix as _confusion_matrix
+from sklearn.model_selection import train_test_split as ttsplit
+
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -40,9 +43,6 @@ def plot_infinite_line(ax, p0, p1):
     xmin, xmax = ax.get_xlim()
     ax.plot([xmin, xmax], [xmin*slope, xmax*slope], color='r', alpha=0.25)
     
-    
-    
-    
 def pair_plot(data):
     sns.pairplot(data)
     
@@ -52,6 +52,8 @@ def pair_plot(data):
 def demean(X):
     return X - X.mean(axis=0)
 
+def train_test_split(X,Y, test_fraction, random_seed=None):
+    return ttsplit(X,Y,test_size=test_fraction, random_state = random_seed)
     
 #### Models ####
 
@@ -62,6 +64,22 @@ def linear_model(X, Y, add_constant=True, verbose=True):
     if verbose:
         display(sm_res.summary())
     return sm_res
+
+def regularized_linear_model(X, Y, method, alpha, l1_ratio=None, add_constant=True, verbose=True):
+    available_methods = ['ridge', 'lasso', 'elastic_net']
+    method_ = method.lower()
+    assert method_ in available_methods, f"Must be in {available_methods}"
+    if method_ == 'ridge':
+        model = Ridge(alpha=alpha)
+    elif method == 'lasso':
+        model = Lasso(alpha=alpha)
+    elif method == 'elastic_net':
+        l1 is l1_ratio if l1_ratio is not None else 0.5
+        model = ElasticNet(alpha = alpha, l1_ratio = l1)
+    else:
+        raise NotImplementedError
+    model.fit(X,Y)
+    return model
 
 
 ### Reports ###
