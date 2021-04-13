@@ -10,6 +10,7 @@
 \newcommand{\gray}{\color{gray}}
 \newcommand{\<}{\textless}
 \newcommand{\yh}{\hat{y}}
+\newcommand{\bh}{\hat{\beta}}
 \newcommand{\yb}{\bar{y}}
 \newcommand{\bX}{{\bf{X}}}
 \newcommand{\bx}{{\bf{x}}}
@@ -557,6 +558,91 @@ Now on to the main ideas in chapter
   \item Note solution is again linear in $\by$.
   \item The addition of $\lambda I$ to Gram matrix makes it non-singular. This was the original motivation for introduction of ridge regression.
   \item ridge regression can also be seen as the mean or mode of the bayesian posterior with likelihood $ y_i \sim N(\beta_0 + x_i^T \beta, \sigma^2)$ and priors $\beta_j \sim N(0, \tau^2)$, with both $\tau$ and $\sigma$ assumed known.
+  \item can get more color on this via an SVD of the centered $X$ matrix (which is now $N\times p$)
+    \begin{itemize}
+      \item Let  $X = UDV^T$
+      \item in regular OLS
+	\begin{eqnarray}
+	  \bX\hat{\beta}^{ls}&=& \bX(\bX^T\bX)^{-1}\bX^T\by  \\
+	    &=& UU^T\by
+	  \end{eqnarray}
+	  Note that $U^T\by$ are the coordinates of $\by$ wrt to orthonormal basis $U$. 
+	  \subitem {\gray Proof of this requires the use of the inverse of $V$, which I think exists by construction (even if $X$ and/or $X^TX$ are not full rank. Furthermore, just in writing expression, we are using $(X^TX)^{-1}$}
+      \item with ridge solutions
+	\begin{eqnarray}
+	  X\hat{\beta}^{ridge}&=& X(X^TX + \lambda I)^{-1}X^TY  \\
+	    &=& UD(D^2 + \lambda I)^{-1} DU^Ty \\
+	    &=& \sum_{j=1}^p u_j \frac{d^2_j}{d^2_j + \lambda}u_j^T y
+	  \end{eqnarray}
+	  where the $u_j$ are the columns of $U$.
+	\item So in both cases, it first computes the coordinates of $y$ in the $U$ basis. But in the case of ridge, it then shrinks these coordinates by the middle factor.
+	\item moreover, note that geater shrinkage is applied to coordinates with smaller $d_j^2$.
+	\item Since SVD of center matrix is another way to express PCA, this is telling us that more shrinkage is applied to the orthogonal directions of least variance.
+	  \subitem ``Ridge regression protects against potentially high variance of gradients estimted in the short directions. The implicit assumption is that the response will tend to vary most in the direction of high variance of the inputs. This is often a reasonable assumption, since predictor are often chosen for study because they vary with the response variable, but need not hold in general.''
+	\item can define effective degrees of freedom as
+	  \begin{eqnarray}
+	    df(\lambda) &=& tr\left[ X(X^TX + \lambda I)^{-1}X^T\right] \\
+	      &=& tr(H_\lambda) \\
+	      &=& \sum_{j=1}^p \frac{d^2_j}{d^2_j + \lambda}
+	  \end{eqnarray}
+	 This goes from $p$ when $\lambda = 0$ to $0$ when $\lambda \to \infty$.
+    \end{itemize}
+\end{itemize}
+
+\subsection{The Lasso}
+\begin{itemize}
+  \item Definition
+    $$\bh^{lasso} := argmin_{\beta} \sum_{i=1}^N \left( y_i - \beta_0 - \sum_{j=1}^p x_{ij}\beta_j \right)^2$$
+    subject to
+  $$ \sum_{j=1}^p |\beta_j| \leq t $$
+\item as with ridge, can reparameterize $\beta_0$ by standardizing predictors; soln for $\bh_0$ is $\yb$, and thereafter can fit model without intercept {\gray (and centered y)}.
+\item also like ridge, can write this in equivalent lagrangian form
+  $$\bh^{lasso} := argmin_{\beta}\left\{ \frac{1}{2} \sum_{i=1}^N \left( y_i - \beta_0 - \sum_{j=1}^p x_{ij}\beta_j \right)^2 + \lambda\left( \sum_{j=1}^p |\beta_j| \right)\right\} $$
+\item The L1 penalty makes solution non-linear in the $y$, and there is no closed form expression for it.
+\item making $t$ sufficiently small ($\lambda$ sufficiently big) will cause some of the coefficients to be exactly zero. There are several ways to see this.
+  \begin{itemize}
+    \item First, note that in the case of orthonormal predictors, ridge, lasso, and subset selection have explicit solutions. Let $\bh$ be regular OLS solution, then
+      \begin{center}
+      \begin{tabular}{lc}
+	\hline
+	Estimator & Formula \\
+	\hline \\
+	Best susbset (size M) & $\bh \cdot I(|\bh_j| \geq |\bh_{(M)}|)$ \\
+	Ridge &  $\bh_j/(1 + \lambda)$\\
+	Lasso &   $sgn(\bh_j)\left(|\bh_j| - \lambda  \right)_+$\\
+      \end{tabular}
+    \end{center}
+  \item From the non-lagrangian perspective, in 2D, the L1 constraint is a diamond centered on the origin in space of solutions $\beta$, while the L2 constraint is a circle centered at the origin. For an initial unconstrained OLS solution $(\beta_0, \beta_1)$, outside the constraint region, level surfaces of squared error formula will be ellipses centered around that original solution, with minimum error being said solution. The regularized solution will be the point on the smallest ellipse that first crosses the constraint boundary. The claim is that it is much more likely for this point to be on the corners for the diamond, than on similar points for the circle. Moreover this phenomena becomes more poignant in higher dimensions.
+  \item {\gray a third way of seeing this, which is really just an extension of the first, write L1 and L2 problems down in a simple 2D case, with everything already centered. To avoid proliferation of subscripts, let predictors be $(u,v)$ and coeffs $(\beta, \gamma)$:
+      $$ f(\beta, \gamma) = \sum_{i}\left( y_i - (\beta u_i + \gamma v_i)  \right) - \lambda g(\beta, \gamma) $$
+      where $g$ is $\beta^2 + \gamma^2$ for ridge and $|\beta| + |\gamma|$ for lasso (actually for simplicity lasso has a factor of 1/2 our front. Will assume its there and appropriately remove it below)
+      \subitem minimize and set to zero leads to
+      \begin{eqnarray}
+	-y\cdot u + \beta u^2 + \gamma u\cdot v + \lambda \frac{\partial g}{\partial \beta} &=& 0 \\
+	-y\cdot u + \beta u\cdot v + \gamma u^2 + \lambda \frac{\partial g}{\partial \gamma} &=& 0 
+	\end{eqnarray}
+	\subitem for simplicity assume $u, v$ are orthonormal. Then you have
+      \begin{eqnarray}
+	-y\cdot u + \beta + \lambda \frac{\partial g}{\partial \beta} &=& 0 \\
+	-y\cdot u + \gamma + \lambda \frac{\partial g}{\partial \gamma} &=& 0 
+	\end{eqnarray}
+	\subitem for ridge, $\partial g/\partial \beta = 2\beta$, so the first equation becomes
+	$$ \beta = y\cdot u /(1 + \lambda)$$
+	\subitem on the other hand, for lasso $\partial g /\partial \beta = 2\theta(\beta) - 1$, where $\theta$ is the heaviside step function, and the first equation becomes
+	$$ \beta = (y\cdot u - \lambda (2\theta(\beta) - 1)) $$
+	(I am being cavalier about factors of two for succinctness, though admittedly perhaps at the sacrifice of too much clarity)
+	\subitem So, lasso puts the lambda in the numerator, therefore big enough lambda, but finite, should be able to get it to zero. With some analysis, you can see that it doesnt take you past zero. OTOH ridge puts lambda in the denominator, which will only make beta go to zero as $\lambda \to \infty$
+
+    }
+  \end{itemize}
+\item can try other values of $q$ for $L_q$, but not very profitable. $q=1$ is special in its ability to set some coefficients to zero
+\item better compromise is to use an elastic net penalty
+  $$ \lambda\sum_{j=1}^p \left(\alpha \beta_j^2 + (1-\alpha)|\beta_j|\right) $$
+\end{itemize}
+
+\subsection{Least Angle Regression}
+\begin{itemize}
+  \item
 \end{itemize}
 
 
