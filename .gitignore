@@ -280,3 +280,7 @@ data/
 
 Notebooks/.ipynb_checkpoints/
 Notebooks/__pycache__/
+
+.python-version
+
+/tools/.idea/
